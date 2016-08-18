@@ -108,7 +108,10 @@ namespace storage {
                 
                 assert(y.getSize()==mSize);
                 
-                std::swap_ranges(mData, mData+mSize*sizeof(real), y.getData());
+                //std::swap_ranges(mData, mData+(mSize-1)*sizeof(real), y.getData());
+				for (index i = 0; i < mSize; ++i) {
+					std::swap(mData[i], y.getData()[i]);
+				}
             }
         
             void Scal(real alpha) {
@@ -139,7 +142,7 @@ namespace storage {
                 assert(x.getData());
                 assert(mSize==x.getSize());
                 
-                real* ptr = x.getData();
+                const real* ptr = x.getData();
                 
                 if(alpha==(real)0.0)    return;
                 if(alpha==(real)1.0) {
@@ -148,7 +151,7 @@ namespace storage {
                     }
                 } else {
                     for(index i=0; i<mSize; ++i) {
-                        mData[i]+=ptr[i];
+                        mData[i]+=alpha*ptr[i];
                     }
                 }
             }
@@ -158,7 +161,7 @@ namespace storage {
                 assert(y.getData());
                 assert(mSize==y.getSize());
                                 
-                real* ptr = y.getData();
+                const real* ptr = y.getData();
                 
                 real sum = 0.0;
                 for(index i=0; i<mSize; ++i) {
