@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <iostream>
+#include <omp.h>
 
 #include <storage/Vec.h>
 #include <cblas.h>
@@ -7,7 +8,7 @@
 using namespace std;
 using namespace troll::storage;
 
-unsigned long NumIt = 1000000;
+unsigned long MaxIt = 10000;
 unsigned long Inc = 500;
 
 void TestVec();
@@ -113,7 +114,7 @@ void TestVec() {
 }
 
 void TestGetSize() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
 		auto* v1 = new Vec<unsigned long, double>(i);
 		assert(v1);
 		assert(v1->getSize() == i);
@@ -123,7 +124,7 @@ void TestGetSize() {
 }
 
 void TestGetData() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
 		double Val = (double)i;
 		double* Data = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
@@ -145,7 +146,7 @@ void TestGetData() {
 }
 
 void TestAt() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
 		double* Data = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
 			Data[j] = (double)j;
@@ -165,7 +166,7 @@ void TestAt() {
 void TestResize() {
 	auto* v1 = new Vec<unsigned long, double>(Inc);
 
-	for (unsigned long i = 2*Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = 2*Inc; i < MaxIt; i += Inc) {
 		v1->Resize(i);
 		assert(v1->getSize() == i);
 		v1->at(i - 1) = 0.0;
@@ -175,7 +176,7 @@ void TestResize() {
 }
 
 void TestSwap() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
 		double* Data1 = new double[i];
 		double* Data2 = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
@@ -206,8 +207,8 @@ void TestSwap() {
 }
 
 void TestScal() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
-		double Alpha = (double)i / (double)NumIt;
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
+		double Alpha = (double)i / (double)MaxIt;
 		double* Data = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
 			Data[j] = (double)j;
@@ -215,7 +216,7 @@ void TestScal() {
 
 		auto* v1 = new Vec<unsigned long, double>(i, Data);
 
-		v1->Scal(Alpha);
+		v1->Scal_1(Alpha);
 		cblas_dscal(i, Alpha, Data, 1);
 
 		for (unsigned long j = 0; j < i; ++j) {
@@ -228,7 +229,7 @@ void TestScal() {
 }
 
 void TestCopy() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
 		double* Data = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
 			Data[j] = (double)j;
@@ -249,8 +250,8 @@ void TestCopy() {
 }
 
 void TestAxpy() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
-		double Alpha = (double)i / (double)NumIt;
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
+		double Alpha = (double)i / (double)MaxIt;
 		double* Data1 = new double[i];
 		double* Data2 = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
@@ -276,7 +277,7 @@ void TestAxpy() {
 }
 
 void TestDot() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
 		double* Data1 = new double[i];
 		double* Data2 = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
@@ -299,7 +300,7 @@ void TestDot() {
 }
 
 void TestNrm2() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
 		double* Data = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
 			Data[j] = (double)j;
@@ -317,7 +318,7 @@ void TestNrm2() {
 }
 
 void TestAsum() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
 		double* Data = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
 			Data[j] = (double)j;
@@ -335,7 +336,7 @@ void TestAsum() {
 }
 
 void TestIdaMax() {
-	for (unsigned long i = Inc; i < NumIt; i += Inc) {
+	for (unsigned long i = Inc; i < MaxIt; i += Inc) {
 		double* Data = new double[i];
 		for (unsigned long j = 0; j < i; ++j) {
 			Data[j] = (double)j;

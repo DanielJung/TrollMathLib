@@ -123,11 +123,35 @@ namespace storage {
                         mData[i] = 0.0;
                     }
                 } else {
+#pragma omp parallel for
                     for(index i=0; i<mSize; ++i) {
                         mData[i]*=alpha;
                     }
                 }
             }
+
+			void Scal_1(real alpha) {
+				assert(mData);
+
+				if (alpha == (real)1.0)    return;
+				if (alpha == (real)0.0) {
+					for (index i = 0; i<mSize; ++i) {
+						mData[i] = 0.0;
+					}
+				}
+				else {
+#pragma omp parallel for
+					for (index i = 0; i < mSize / 4; ++i) {
+						mData[4 * i] *= alpha;
+						mData[4 * i + 1] *= alpha;
+						mData[4 * i + 2] *= alpha;
+						mData[4 * i + 3] *= alpha;
+					}
+					for (index i = mSize-mSize%4; i < mSize; ++i) {
+						mData[i] *= alpha;
+					}
+				}
+			}
 
             void Copy(const IVec<index, real>& y) {
                 assert(mData);
@@ -146,6 +170,7 @@ namespace storage {
                 
                 if(alpha==(real)0.0)    return;
                 if(alpha==(real)1.0) {
+#pragma omp parallel for
                     for(index i=0; i<mSize; ++i) {
                         mData[i]+=ptr[i];
                     }
