@@ -39,9 +39,10 @@ namespace storage {
 
 template <typename index, typename real>
 std::ostream& operator << (std::ostream& stream, const troll::storage::IVec<index, real>& vec) {
-    std::cout<<"Vec - Size "<<vec.getSize()<<": ";
+	stream <<"Vec - Size "<<vec.getSize()<<": ";
     for(index i=0; i<vec.getSize(); ++i) {
-        std::cout<<vec.at(i)<<"\t";
+		stream <<vec.at(i)<<"\t";
     }
-    std::cout<<std::endl;
+	stream <<std::endl;
+	return stream;
 }

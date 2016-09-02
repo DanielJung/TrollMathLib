@@ -56,10 +56,10 @@ namespace storage {
                 mData = (real*)std::malloc(mSize*sizeof(real));
                 assert(mData);
 
-                memcpy(mData, v.mData, mSize*sizeof(real));
+                std::memcpy(mData, v.mData, mSize*sizeof(real));
             }
                 
-            ~Vec() {
+            virtual ~Vec() {
                 if(mData)   free(mData);
                 mData = NULL;
                 mSize = 0;
