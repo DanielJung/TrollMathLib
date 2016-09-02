@@ -9,7 +9,8 @@ INCLUDES = 	-I./inc \
 
 LIBS = -lopenblas
 
-SRC_TEST = tests/TestVec.cpp
+SRC_TEST = tests/TestVec.cpp \
+			tests/TestFullMat.cpp
 SRC_BENCH = bench/BenchVec.cpp
 
 OBJ_TEST = $(SRC_TEST:.cpp=.o)

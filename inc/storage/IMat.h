@@ -27,7 +27,7 @@ template <typename index, typename real>
 std::ostream& operator << (std::ostream& stream, const troll::storage::IMat<index, real>& mat) {
 	stream << "Mat - Size " << mat.getNumRows() << " | " << mat.getNumCols() << " : " << std::endl;
 	for (index i = 0; i<mat.getNumRows(); ++i) {
-		for (index i = 0; i < mat.getNumCols(); ++i) {
+		for (index j = 0; j < mat.getNumCols(); ++j) {
 			std::printf("%6.2f", mat.at(i, j));
 		}
 		stream << std::endl;
