@@ -3,7 +3,7 @@
 #include <omp.h>
 
 #include <storage/FullMat.h>
-#include <storage\Vec.h>
+#include <storage/Vec.h>
 #include <cblas.h>
 
 using namespace std;
