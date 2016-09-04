@@ -1,12 +1,12 @@
 
 CC = gcc
 CXX = g++
-CFLAGS = -Wall -fopenmp
+CFLAGS = -Wall -fopenmp -std=c++0x
 
 LFLAGS = -L/opt/OpenBLAS/lib
 
-INCLUDES = 	-I./inc \
-			-I/opt/OpenBLAS/include
+INCLUDES = -I./inc \
+	-I/opt/OpenBLAS/include
 
 LIBS = -lopenblas
 
@@ -23,8 +23,10 @@ DEP_BENCH = $(SRC_TEST:.cpp=.d)
 EXE_TEST = $(SRC_TEST:.cpp=)
 EXE_BENCH = $(SRC_BENCH:.cpp=)
 
-test: $(OBJ_TEST)
-	$(CXX) $(CFLAGS) $(INCLUDES) -o $@ $(OBJ_TEST) $(LFLAGS) $(LIBS)
+test: $(EXE_TEST)
 
-.cpp.o:
+$(EXE_TEST): %: %.o 
+	$(CXX) $(CFLAGS) $(INCLUDES) $< -o $@ $(LFLAGS) $(LIBS)
+
+%.o: %.cpp
 	$(CXX) $(CFLAGS) $(INCLUDES) -c $< -o $@
