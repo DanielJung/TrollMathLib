@@ -10,13 +10,13 @@ namespace storage {
 	template <typename index, typename real>
 	class COOMat : public IMat<index, real> {
 	public:
-		FullMat(index NumRows, index NumCols) :
+		COOMat(index NumRows, index NumCols) :
 			mNumRows(NumRows),
 			mNumCols(NumCols) {
 			assert(mNumRows > 0 && mNumCols > 0);
 		}
 
-		FullMat(index NumRows, index NumCols, const std::vector<real>& Data, const std::vector<index>& RowPtr, const std::vector<index>& ColPtr) :
+		COOMat(index NumRows, index NumCols, const std::vector<real>& Data, const std::vector<index>& RowPtr, const std::vector<index>& ColPtr) :
 			mNumRows(NumRows),
 			mNumCols(NumCols),
 			mData(Data),
@@ -26,6 +26,8 @@ namespace storage {
 			assert(mData.size() == mRowPtr.size());
 			assert(mData.size() == mColPtr.size());
 		}
+
+		virtual ~COOMat() {}
 
 		real get(index i, index j) const {
 			assert(i < mNumRows);
@@ -37,7 +39,7 @@ namespace storage {
 			auto* RowPtr = mRowPtr.data();
 			auto* ColPtr = mColPtr.data();
 
-			for (index k = 0; k < mData.length(); ++k) {
+			for (index k = 0; k < mData.size(); ++k) {
 				if (i == RowPtr[k] && j == ColPtr[k]) {
 					val += Data[k];
 				}

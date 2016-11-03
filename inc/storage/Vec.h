@@ -58,6 +58,18 @@ namespace storage {
 
                 std::memcpy(mData, v.mData, mSize*sizeof(real));
             }
+
+			Vec(const IVec& v) : 
+				mData(NULL),
+				mSize(v.getSize()) {
+
+				assert(mSize > 0);
+
+				mData = (real*)std::malloc(mSize * sizeof(real));
+				assert(mData);
+
+				std::memcpy(mData, v.getData(), mSize * sizeof(real));
+			}
                 
             virtual ~Vec() {
                 if(mData)   free(mData);
