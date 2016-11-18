@@ -1,5 +1,7 @@
 #pragma once
 
+#define _USE_MATH_DEFINES	
+
 #include <cstdlib>
 #include <assert.h>
 #include <cstring>
