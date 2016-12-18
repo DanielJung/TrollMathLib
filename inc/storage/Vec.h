@@ -78,6 +78,17 @@ namespace storage {
                 mData = NULL;
                 mSize = 0;
             }
+
+			Vec& operator = (const Vec& v) {
+				if (mData)	free(mData);
+				mSize = v.mSize;
+
+				mData = (real*)std::malloc(mSize * sizeof(real));
+				assert(mData);
+
+				std::memcpy(mData, v.mData, mSize * sizeof(real));
+				return *this;
+			}
             
             index getSize() const {
                 return mSize;
