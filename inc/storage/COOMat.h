@@ -10,22 +10,24 @@ namespace storage {
 	template <typename index, typename real>
 	class COOMat : public IMat<index, real> {
 	public:
-		FullMat(index NumRows, index NumCols) :
+		COOMat(index NumRows, index NumCols) :
 			mNumRows(NumRows),
 			mNumCols(NumCols) {
 			assert(mNumRows > 0 && mNumCols > 0);
 		}
 
-		FullMat(index NumRows, index NumCols, const std::vector<real>& Data, const std::vector<index>& RowPtr, const std::vector<index>& ColPtr) :
+		COOMat(index NumRows, index NumCols, const Vec<index, real>& Data, const Vec<index, index>& RowPtr, const Vec<index, index>& ColPtr) :
 			mNumRows(NumRows),
 			mNumCols(NumCols),
 			mData(Data),
 			mRowPtr(RowPtr),
 			mColPtr(ColPtr) {
 			assert(mNumRows > 0 && mNumCols > 0);
-			assert(mData.size() == mRowPtr.size());
-			assert(mData.size() == mColPtr.size());
+			assert(mData.getSize() == mRowPtr.getSize());
+			assert(mData.getSize() == mColPtr.getSize());
 		}
+
+		virtual ~COOMat() {}
 
 		real get(index i, index j) const {
 			assert(i < mNumRows);
@@ -33,11 +35,11 @@ namespace storage {
 
 			real val = 0.0;
 
-			auto* Data = mData.data();
-			auto* RowPtr = mRowPtr.data();
-			auto* ColPtr = mColPtr.data();
+			auto* Data = mData.getData();
+			auto* RowPtr = mRowPtr.getData();
+			auto* ColPtr = mColPtr.getData();
 
-			for (index k = 0; k < mData.length(); ++k) {
+			for (index k = 0; k < mData.getSize(); ++k) {
 				if (i == RowPtr[k] && j == ColPtr[k]) {
 					val += Data[k];
 				}
@@ -79,8 +81,8 @@ namespace storage {
 				mColPtr.clear();
 			}
 			else {
-				real* Data = mData.data();
-				for (index i = 0; i < mData.size(); ++i) {
+				real* Data = mData.getData();
+				for (index i = 0; i < mData.getSize(); ++i) {
 					Data[i] *= alpha;
 				}
 			}
@@ -97,20 +99,20 @@ namespace storage {
 			auto* DataX = x.getData();
 			auto* DataY = y.getData();
 
-			auto* Data = mData.data();
-			auto* RowPtr = mRowPtr.data();
-			auto* ColPtr = mColPtr.data();
+			auto* Data = mData.getData();
+			auto* RowPtr = mRowPtr.getData();
+			auto* ColPtr = mColPtr.getData();
 
-			for (index i = 0; i < mData.size(); ++i) {
+			for (index i = 0; i < mData.getSize(); ++i) {
 				DataY[RowPtr[i]] += alpha*Data[i] * DataX[ColPtr[i]];
 			}
 		}
 	private:
 		index mNumRows;
 		index mNumCols;
-		std::vector<real> mData;
-		std::vector<index> mRowPtr;
-		std::vector<index> mColPtr;
+		Vec<index, real> mData;
+		Vec<index, index> mRowPtr;
+		Vec<index, index> mColPtr;
 	};
 }
 }

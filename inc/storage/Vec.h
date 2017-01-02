@@ -1,10 +1,13 @@
 #pragma once
 
+#define _USE_MATH_DEFINES	
+
 #include <cstdlib>
 #include <assert.h>
 #include <cstring>
 #include <algorithm>
 #include <cmath>
+#include <vector>
 
 #include "IVec.h"
 
@@ -13,6 +16,11 @@ namespace storage {
     template <typename index, typename real>
     class Vec : public IVec<index, real> {
         public:
+			Vec() : 
+				mData(NULL),
+				mSize(0) {
+
+			}
             Vec(index Size) :
                 mData(NULL),
                 mSize(Size) {
@@ -58,12 +66,47 @@ namespace storage {
 
                 std::memcpy(mData, v.mData, mSize*sizeof(real));
             }
+
+			Vec(const IVec& v) : 
+				mData(NULL),
+				mSize(v.getSize()) {
+
+				assert(mSize > 0);
+
+				mData = (real*)std::malloc(mSize * sizeof(real));
+				assert(mData);
+
+				std::memcpy(mData, v.getData(), mSize * sizeof(real));
+			}
+
+			Vec(const std::vector<real>& v) : 
+				mData(NULL),
+				mSize(v.size()) {
+
+				assert(mSize > 0);
+
+				mData = (real*)std::malloc(mSize * sizeof(real));
+				assert(mData);
+
+				std::memcpy(mData, v.data(), mSize * sizeof(real));
+			}
                 
             virtual ~Vec() {
                 if(mData)   free(mData);
                 mData = NULL;
                 mSize = 0;
             }
+
+			Vec& operator = (const Vec& v) {
+				if (mData)	free(mData);
+				mSize = v.mSize;
+
+				mData = (real*)std::malloc(mSize * sizeof(real));
+				assert(mData);
+
+				std::memcpy(mData, v.mData, mSize * sizeof(real));
+				return *this;
+			}
             
             index getSize() const {
                 return mSize;
@@ -92,15 +135,29 @@ namespace storage {
             }
             
             void Resize(index Size) {
-                assert(mData);
                 assert(Size>0);
                 
                 if(Size==mSize) return;
                 
                 mSize = Size;
-                mData = (real*)realloc(mData, mSize*sizeof(real));
+				if (mData) {
+					mData = (real*)realloc(mData, mSize * sizeof(real));
+				}
+				else {
+					mData = (real*)malloc(mSize * sizeof(real));
+				}
+
                 assert(mData);
             }
+
+			void Fill(real num) {
+				assert(mData);
+				assert(mSize>0);
+
+				for (index i = 0; i<mSize; ++i) {
+					mData[i] = num;
+				}
+			}
             
             void Swap(IVec<index, real>& y) {
                 assert(mData);
@@ -120,7 +177,7 @@ namespace storage {
                 if(alpha==(real)1.0)    return;
                 if(alpha==(real)0.0) {
                     for(index i=0; i<mSize; ++i) {
-                        mData[i] = 0.0;
+                        mData[i] = (real)0.0;
                     }
                 } else {
 #pragma omp parallel for
@@ -188,7 +245,7 @@ namespace storage {
                                 
                 const real* ptr = y.getData();
                 
-                real sum = 0.0;
+                real sum = (real)0.0;
                 for(index i=0; i<mSize; ++i) {
                     sum+=mData[i]*ptr[i];
                 }
@@ -198,19 +255,19 @@ namespace storage {
             real Nrm2() const {
                 assert(mData);
                                 
-                real sum = 0.0;
+                real sum = (real)0.0;
                 for(index i=0; i<mSize; ++i) {
                     sum+=mData[i]*mData[i];
                 }
-                return sqrt(sum);
+                return (real)sqrt(sum);
             }
 
             real Asum() const {
                 assert(mData);
                 
-                real sum = 0.0;
+                real sum = (real)0.0;
                 for(index i=0; i<mSize; ++i) {
-                    sum+=fabs(mData[i]);
+                    sum += (real)fabs(mData[i]);
                 }
                 return sum;
             }
@@ -219,11 +276,11 @@ namespace storage {
                 assert(mData);
                 
                 index max = 0;
-                real val = 0.0;
-                real tmp = 0.0;
+                real val = (real)0.0;
+                real tmp = (real)0.0;
                 
                 for(index i=0; i<mSize; ++i) {
-                    tmp = fabs(mData[i]);
+                    tmp = (real)fabs(mData[i]);
                     if(tmp>val) {
                         max = i;
                         val = tmp;
@@ -231,6 +288,24 @@ namespace storage {
                 }
                 return max;
             }
+
+			void push_back(real val) {
+				if (mData) {
+					Resize(mSize + 1);
+					mData[mSize - 1] = val;
+				}
+				else {
+					mData = (real*)std::malloc(1 * sizeof(real));
+					mSize = 1;
+					mData[0] = val;
+				}
+			}
+
+			void clear() {
+				if (mData)   free(mData);
+				mData = NULL;
+				mSize = 0;
+			}
             
         private:
             real* mData;
