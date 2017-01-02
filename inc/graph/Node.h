@@ -1,14 +1,14 @@
 #pragma once
 
-#include <vector>
+#include "INode.h"
 
 namespace troll {
 namespace graph {
 	template <typename index>
-	class Node {
-		Node(index ID, const std::vector<index> EdgeIDs) : 
-		mID(ID),
-		mEdgeIDs(EdgeIDs) {
+	class Node : INode<index> {
+	public:
+		Node(index ID) : 
+			mID(ID) {
 
 		}
 
@@ -18,13 +18,8 @@ namespace graph {
 			return mID;
 		}
 
-		const std::vector<index>& getEdgeIDs() const {
-			return mEdgeIDs;
-		}
-
-		private:
+	protected:
 		index mID;
-		std::vector<index> mEdgeIDs;
 	};
 }
 }
