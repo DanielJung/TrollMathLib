@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <map>
 
 #include "INode.h"
 #include "IEdge.h"
@@ -16,8 +15,8 @@ namespace graph {
 		
 	private:
 		storage::COOMat<index, index> mAdjacencyMatrix;
-		storage::Vec<index, INode> mNodes;
-		storage::Vec<index, IEdge> mEdges;
+		storage::Vec<index, INode<index>*> mNodes;
+		storage::Vec<IEdge<index>*> mEdges;
 	};
 }
 }
