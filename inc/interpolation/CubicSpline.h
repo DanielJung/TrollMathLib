@@ -8,6 +8,7 @@
 #include "../storage/CRSMat.h"
 #include "../storage/SymCRSMat.h"
 #include "../solver/cg.h"
+#include "../solver/jacobi.h"
 
 #include <iostream>
 #include <chrono>
@@ -75,14 +76,20 @@ namespace interpolation {
 
 			storage::COOMat<index, real> A(n, n, Data, RowPtr, ColPtr);
 
+			std::cout << A << std::endl;
+
 			storage::Vec<index, real> b(n, 0.0);
 			for (index i = 1; i < n-1; ++i) {
 				b.at(i) = 6.0 / h.at(i)*(y.at(i + 1) - y.at(i)) - 6.0 / h.at(i - 1)*(y.at(i) - y.at(i - 1));
 			}
 
+			std::cout << b << std::endl;
+
 			storage::Vec<index, real> ddy(n, 0.0);
 			
 			solver::cg<index, real>(A, b, ddy, 1e-10, 1000);
+
+			std::cout << ddy << std::endl;
 
 			mA = new storage::Vec<index, real>(n - 1);
 			mB = new storage::Vec<index, real>(n - 1);
@@ -143,7 +150,8 @@ namespace interpolation {
 
 			storage::Vec<index, real> ddy(n, 0.0);
 
-			solver::cg<index, real>(A, b, ddy, 1e-10, 1000);
+			//solver::cg<index, real>(A, b, ddy, 1e-10, 1000);
+			solver::jacobi<index, real>(A, b, ddy, 1e-10, 1000);
 
 			mA = new storage::Vec<index, real>(n - 1);
 			mB = new storage::Vec<index, real>(n - 1);
@@ -158,7 +166,7 @@ namespace interpolation {
 			}
 		}
 
-		real Eval(real x) {
+		real Eval(real x) const {
 			assert(mX);
 			assert(mA);
 			assert(mB);
@@ -176,12 +184,20 @@ namespace interpolation {
 			return (real)HUGE_VAL;
 		}
 
-		storage::Vec<index, real> Eval(const storage::Vec<index, real>& x) {
+		storage::Vec<index, real> Eval(const storage::Vec<index, real>& x) const {
 			storage::Vec<index, real> Result(x.getSize());
 			for (index i = 0; i < x.getSize(); ++i) {
 				Result.at(i) = Eval(x.at(i));
 			}
 			return Result;
+		}
+
+		real getMin() const {
+			return mX->at(0);
+		}
+
+		real getMax() const {
+			return mX->at(mX->getSize() - 1);
 		}
 	private:
 		storage::Vec<index, real>* mX;

@@ -81,7 +81,7 @@ namespace storage {
 
 			Vec(const std::vector<real>& v) : 
 				mData(NULL),
-				mSize(v.size()) {
+				mSize((index)v.size()) {
 
 				assert(mSize > 0);
 
@@ -89,6 +89,22 @@ namespace storage {
 				assert(mData);
 
 				std::memcpy(mData, v.data(), mSize * sizeof(real));
+			}
+
+			Vec(const std::initializer_list<real>& v) : 
+				mData(NULL),
+				mSize(v.size()) {
+				
+				assert(mSize > 0);
+
+				mData = (real*)std::malloc(mSize * sizeof(real));
+				assert(mData);
+
+				index i = 0;
+				for (auto t = v.begin(); t != v.end(); ++t) {
+					mData[i] = *t;
+					i++;
+				}
 			}
                 
             virtual ~Vec() {

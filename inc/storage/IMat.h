@@ -29,6 +29,7 @@ std::ostream& operator << (std::ostream& stream, const troll::storage::IMat<inde
 	for (index i = 0; i<mat.getNumRows(); ++i) {
 		for (index j = 0; j < mat.getNumCols(); ++j) {
 			std::printf("%6.2f", mat.get(i, j));
+			//std::cout << mat.get(i, j)<<" ";
 		}
 		stream << std::endl;
 	}

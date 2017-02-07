@@ -5,7 +5,7 @@
 namespace troll {
 	namespace graph {
 		template <typename index>
-		class Edge : IEdge<index> {
+		class Edge : public IEdge<index> {
 		public:
 			Edge(index ID) :
 				mID(ID) {

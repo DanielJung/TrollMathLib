@@ -1,7 +1,6 @@
 #pragma once
 
 #include <assert.h>
-#include <vector>
 
 #include "IMat.h"
 #include "Vec.h"
@@ -9,40 +8,35 @@
 namespace troll {
 namespace storage {
 	template <typename index, typename real>
-	class COOMat : public IMat<index, real> {
+	class CRSMat : public IMat<index, real> {
 	public:
-		COOMat(index NumRows, index NumCols) :
-			mNumRows(NumRows),
-			mNumCols(NumCols) {
-			assert(mNumRows > 0 && mNumCols > 0);
-		}
-
-		COOMat(index NumRows, index NumCols, const Vec<index, real>& Data, const Vec<index, index>& RowPtr, const Vec<index, index>& ColPtr) :
+		CRSMat(index NumRows, index NumCols, const IVec<index, real>& Data, const IVec<index, index>& RowPtr, const IVec<index, index>& Cols) : 
 			mNumRows(NumRows),
 			mNumCols(NumCols),
 			mData(Data),
 			mRowPtr(RowPtr),
-			mColPtr(ColPtr) {
+			mCols(Cols) {
 			assert(mNumRows > 0 && mNumCols > 0);
-			assert(mData.getSize() == mRowPtr.getSize());
-			assert(mData.getSize() == mColPtr.getSize());
+			assert(mData.getSize() == mCols.getSize());
+			assert(mRowPtr.getSize() == mNumCols+1);
 		}
 
-		virtual ~COOMat() {}
+		virtual ~CRSMat() {}
 
-		real get(index i, index j) const {
-			assert(i < mNumRows);
-			assert(j < mNumCols);
+		real get(index row, index col) const {
+			assert(row < mNumRows);
+			assert(col < mNumCols);
 
-			real val = (real)0.0;
+			real val = 0.0;
 
 			auto* Data = mData.getData();
 			auto* RowPtr = mRowPtr.getData();
-			auto* ColPtr = mColPtr.getData();
+			auto* Cols = mCols.getData();
 
-			for (index k = 0; k < mData.getSize(); ++k) {
-				if (i == RowPtr[k] && j == ColPtr[k]) {
-					val += Data[k];
+			for (index i = 0; i < mRowPtr.getSize()-1; ++i) {
+				for (index k = RowPtr[i]; k < RowPtr[i + 1]; ++k) {
+					index j = Cols[k];
+					if (i == row && j == col)	val += Data[k];
 				}
 			}
 
@@ -50,12 +44,7 @@ namespace storage {
 		}
 
 		void set(index i, index j, real val) {
-			assert(i < mNumRows);
-			assert(j < mNumCols);
-
-			mData.push_back(val);
-			mRowPtr.push_back(i);
-			mColPtr.push_back(j);
+			assert(false);
 		}
 
 		index getNumRows() const {
@@ -66,12 +55,20 @@ namespace storage {
 			return mNumCols;
 		}
 
-		void Resize(index m, index n) {
-			assert(m > 0);
-			assert(n > 0);
+		const Vec<index, real>& getData() const {
+			return mData;
+		}
 
-			mNumRows = m;
-			mNumCols = n;
+		const Vec<index, index>& getCols() const {
+			return mCols;
+		}
+
+		const Vec<index, index>& getRowPtr() const {
+			return mRowPtr;
+		}
+
+		void Resize(index m, index n) {
+			assert(false);
 		}
 
 		void Scal(real alpha) {
@@ -79,7 +76,7 @@ namespace storage {
 			if (alpha == (real)0.0) {
 				mData.clear();
 				mRowPtr.clear();
-				mColPtr.clear();
+				mCols.clear();
 			}
 			else {
 				real* Data = mData.getData();
@@ -102,18 +99,22 @@ namespace storage {
 
 			auto* Data = mData.getData();
 			auto* RowPtr = mRowPtr.getData();
-			auto* ColPtr = mColPtr.getData();
+			auto* Cols = mCols.getData();
 
-			for (index i = 0; i < mData.getSize(); ++i) {
-				DataY[RowPtr[i]] += alpha*Data[i] * DataX[ColPtr[i]];
+			for (index i = 0; i < mRowPtr.getSize() - 1; ++i) {
+				for (index k = RowPtr[i]; k < RowPtr[i + 1]; ++k) {
+					index j = Cols[k];
+					DataY[i] += alpha*Data[k] * DataX[j];
+				}
 			}
 		}
+
 	private:
 		index mNumRows;
 		index mNumCols;
 		Vec<index, real> mData;
 		Vec<index, index> mRowPtr;
-		Vec<index, index> mColPtr;
+		Vec<index, index> mCols;
 	};
 }
 }
